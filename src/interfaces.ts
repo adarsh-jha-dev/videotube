@@ -1,16 +1,29 @@
-export type IUser = {};
+export type IUser = {
+  username: string;
+  fullname: string;
+  avatar: string;
+  coverImage: string;
+};
 
 export type IVideos = {
   _id: string;
   videoFile: string;
   thumbnail: string;
-  owner: string;
+  owner: IUser;
   title: string;
   description: string;
-  duration: Number;
-  views: Number;
+  duration: number;
+  views: number;
   isPublished: Boolean;
   createdAt: Date;
   updatedAt: Date;
-  __v: Number;
+  __v: number;
+};
+
+export type VideoCardProps = {
+  thumbnail: string;
+  owner: IUser;
+  title: string;
+  description: string;
+  views: number;
 };
