@@ -3,7 +3,7 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import axios from "axios";
 import { IVideos } from "../interfaces.ts";
-import VideoCard from "./VideoCard.tsx";
+import VideoCard from "./shared/VideoCard.tsx";
 
 const Home = () => {
   const [videos, setVideos] = useState<IVideos[]>([]);

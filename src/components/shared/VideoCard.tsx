@@ -1,4 +1,4 @@
-import { VideoCardProps } from "../interfaces.ts";
+import { VideoCardProps } from "../../interfaces.ts";
 
 const VideoCard = ({
   thumbnail,
