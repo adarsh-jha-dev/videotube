@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import axios from "axios";
+import axios from "../services/axios";
 import { IVideos } from "../interfaces.ts";
 import VideoCard from "./shared/VideoCard.tsx";
 
@@ -11,9 +11,7 @@ const Home = () => {
   useEffect(() => {
     const fetchVideos = async () => {
       try {
-        const response = await axios.get(
-          `${import.meta.env.VITE_APP_VIDEOTUBE_BACKEND_BASE_URL}/videos/getall`
-        );
+        const response = await axios.get(`/videos/getall`);
         setVideos(response.data.data);
       } catch (error) {
         toast("Some error occured while fetching the videos");

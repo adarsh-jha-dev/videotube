@@ -13,8 +13,8 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useState } from "react";
-import axios from "axios";
-import { toast } from "react-toastify";
+import axios from "../services/axios";
+import { ToastContainer, toast } from "react-toastify";
 import { useDispatch } from "react-redux";
 import { login } from "@/store/AuthSlice";
 import { useNavigate } from "react-router-dom";
@@ -72,20 +72,32 @@ const SignUp = () => {
       formData.append("avatar", avatar);
       formData.append("coverImage", coverImage);
 
-      const response = await axios.post(
-        `${import.meta.env.VITE_APP_VIDEOTUBE_BACKEND_BASE_URL}/users/register`,
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
+      const response = await axios.post(`/users/register`, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
 
       if (response.status === 200) {
-        dispatch(login({ userData: response.data.data.createdUser }));
-        toast("Signed-up successfully");
-        navigate("/");
+        const loginResponse = await axios.post(
+          `${
+            import.meta.env.VITE_APP_VIDEOTUBE_BACKEND_BASE_URL
+          }/api/v1/users/login`,
+          {
+            email: values.email,
+            password: values.password,
+          }
+        );
+
+        if (loginResponse && loginResponse.data.statusCode === 200) {
+          localStorage.setItem("accessToken", response.data.data.accessToken);
+          dispatch(login({ userData: response.data.data }));
+          toast("Signed-up successfully");
+          navigate("/");
+        } else {
+          navigate("/login");
+          toast("Please login to your account");
+        }
       }
     } catch (error: any) {
       console.log(error);
@@ -96,110 +108,113 @@ const SignUp = () => {
   }
 
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-        <FormField
-          control={form.control}
-          name="email"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Email</FormLabel>
-              <FormControl>
-                <Input placeholder="Email" type="email" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="username"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Username</FormLabel>
-              <FormControl>
-                <Input placeholder="Username" {...field} />
-              </FormControl>
-              <FormDescription>
-                This is your public display name.
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="fullname"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Full Name</FormLabel>
-              <FormControl>
-                <Input placeholder="Full Name" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="password"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Password</FormLabel>
-              <FormControl>
-                <Input placeholder="Password" type="password" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="avatar"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Avatar</FormLabel>
-              <FormControl>
-                <Input
-                  {...field}
-                  placeholder="Avatar"
-                  type="file"
-                  onChange={(e) => {
-                    handleAvatarChange(e);
-                    field.onChange(e);
-                  }}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="coverImage"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Cover Image</FormLabel>
-              <FormControl>
-                <Input
-                  {...field}
-                  placeholder="Cover Image"
-                  type="file"
-                  onChange={(e) => {
-                    handleCoverImageChange(e);
-                    field.onChange(e);
-                  }}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <Button disabled={loading} type="submit">
-          {loading ? "Loading..." : "Submit"}
-        </Button>
-      </form>
-    </Form>
+    <div>
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+          <FormField
+            control={form.control}
+            name="email"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Email</FormLabel>
+                <FormControl>
+                  <Input placeholder="Email" type="email" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="username"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Username</FormLabel>
+                <FormControl>
+                  <Input placeholder="Username" {...field} />
+                </FormControl>
+                <FormDescription>
+                  This is your public display name.
+                </FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="fullname"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Full Name</FormLabel>
+                <FormControl>
+                  <Input placeholder="Full Name" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="password"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Password</FormLabel>
+                <FormControl>
+                  <Input placeholder="Password" type="password" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="avatar"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Avatar</FormLabel>
+                <FormControl>
+                  <Input
+                    {...field}
+                    placeholder="Avatar"
+                    type="file"
+                    onChange={(e) => {
+                      handleAvatarChange(e);
+                      field.onChange(e);
+                    }}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="coverImage"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Cover Image</FormLabel>
+                <FormControl>
+                  <Input
+                    {...field}
+                    placeholder="Cover Image"
+                    type="file"
+                    onChange={(e) => {
+                      handleCoverImageChange(e);
+                      field.onChange(e);
+                    }}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <Button disabled={loading} type="submit">
+            {loading ? "Loading..." : "Submit"}
+          </Button>
+        </form>
+      </Form>
+      <ToastContainer />
+    </div>
   );
 };
 
